@@ -28,4 +28,6 @@ export interface TodosState {
   cities: City[]
   specialities: Speciality[]
   doctors: Doctor[]
+  filteredSpecialities: Speciality[]
+  filteredDoctors: Doctor[]
 }

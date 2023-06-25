@@ -1,27 +1,33 @@
-import React, { useEffect } from 'react';
-import * as yup from 'yup';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useFormik } from 'formik'
 import MySelect from './UI/MySelect'
-import { useFetchCitiesQuery } from '../store/todo.api/todo.api'
+import { useFetchCitiesQuery, useFetchDoctorsQuery, useFetchSpecialitiesQuery } from '../store/todo.api/todo.api'
 import { SEX_OPTIONS } from '../consts'
 import { VALIDATION_SCHEMA } from '../schema'
 import MyInput from './UI/MyInput'
+import MyDatePicker from './UI/MyDatePicker'
+import { useActions } from '../hooks/actions'
+import { useAppSelector } from '../hooks/redux'
 
 const MyForm = () => {
 
-  const { data: cities } = useFetchCitiesQuery()
-
-
+  const { isLoading: isCitiesLoading, data: citiesResponse } = useFetchCitiesQuery()
+  const { isLoading: isSpecialtiesLoading, data: specialtiesResponse } = useFetchSpecialitiesQuery()
+  const { isLoading: isDoctorsLoading, data: doctorsResponse } = useFetchDoctorsQuery()
+  const {setCities, setSpecialities, setDoctors, setFilteredSpecialities} = useActions()
+  const {cities, doctors, filteredSpecialities} = useAppSelector(state => state.todo)
+  const sexOptions = useMemo(() => SEX_OPTIONS, [])
 
   const formik = useFormik({
     initialValues: {
       name: '',
       date: new Date(),
       sex: '',
-      city: ''
+      city: '',
+      speciality: '',
+      doctor: '',
+      email: '',
+      phone: ''
     },
     validationSchema: VALIDATION_SCHEMA,
     onSubmit: (values) => {
@@ -29,137 +35,84 @@ const MyForm = () => {
     },
   });
 
-  const handleFormFieldChange = (name: string, value: string) => {
-    formik.setFieldValue(name, value, false)
-    formik.setErrors({...formik.errors, [name]: ''})
-    setTimeout(() => {
-      formik.validateField(name)
-    }, 0)
-  }
+  const handleFormFieldChange = useCallback((name: string, value: string) => {
+    formik.setFieldValue(name, value, true)
+  }, [])
 
+  useEffect(() => {
+    citiesResponse && setCities(citiesResponse)
+    specialtiesResponse && setSpecialities(specialtiesResponse)
+    doctorsResponse && setDoctors(doctorsResponse)
+  }, [citiesResponse, specialtiesResponse, doctorsResponse])
 
+  useEffect(() => {
+    setFilteredSpecialities({
+      birthdayDate: formik.values.date,
+      sex: formik.values.sex
+    })
+  }, [formik.values.sex, formik.values.date])
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <TextField
-        id="name"
-        label="Name"
-        variant="outlined"
-        value={formik.values.name}
-        onChange={formik.handleChange}
-        error={ Boolean(formik.errors.name)}
-        helperText={formik.errors.name}
-      />
-      <MyInput
-        name={'name'}
-        values={formik.values}
-        errors={formik.errors}
-        onInputChange={(value) => handleFormFieldChange('name', value)}
-      />
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <DatePicker
-          disableFuture={true}
-          format="dd/MM/yyyy"
-          label="Birthday date"
-          value={formik.values.date}
-          onChange={(value) => formik.setFieldValue('date', value, true)}
-          slotProps={{
-            textField: {
-              fullWidth: false,
-              variant: 'outlined',
-              error: formik.touched.date && Boolean(formik.errors.date),
-              helperText: (formik.touched.date && formik.errors.date) ? <>{formik.errors.date}</> : null,
-            },
-          }}
-        />
-      </LocalizationProvider>
-      <MySelect
-        name={'sex'}
-        values={formik.values}
-        errors={formik.errors}
-        options={SEX_OPTIONS}
-        onSelectChange={(value) => handleFormFieldChange('sex', value)}
-      />
-      <FormControl
-        sx={{ m: 1, minWidth: 200 }}
-        size="small"
-      >
-        <InputLabel id="demo-select-small-label">Sex</InputLabel>
-        <Select
-          labelId="demo-select-small-label"
-          id="demo-select-small"
-          value={formik.values.sex}
-          label="Sex"
-          onChange={(event) => {
-            formik.setFieldValue('sex', event.target.value, false)
-            formik.setErrors({...formik.errors, sex: ''})
-          }}
-          error={!!formik.errors.sex}
-        >
-          <MenuItem value={'Male'}>Male</MenuItem>
-          <MenuItem value={'Female'}>Female</MenuItem>
-        </Select>
-        <FormHelperText sx={{color: '#d32f2f'}}>{formik.errors.sex}</FormHelperText>
-      </FormControl>
-      <FormControl
-        sx={{ m: 1, minWidth: 200 }}
-        size="small"
-      >
-        <InputLabel id="demo-select-small-label">City</InputLabel>
-        <Select
-          labelId="demo-select-small-label"
-          id="demo-select-small"
-          value={formik.values.city}
-          label="City"
-          onChange={(event) => {
-            formik.setFieldValue('city', event.target.value, false)
-            formik.setErrors({...formik.errors, city: ''})
-          }}
-          error={!!formik.errors.city}
-        >
-          <MenuItem value={'Odessa'}>Odessa</MenuItem>
-          <MenuItem value={'Kyiv'}>Kyiv</MenuItem>
-        </Select>
-        {formik.errors.city && <FormHelperText sx={{ color: '#d32f2f' }}>{formik.errors.city}</FormHelperText>}
-      </FormControl>
-      <FormControl
-        sx={{ m: 1, minWidth: 120 }}
-        size="small"
-      >
-        <InputLabel id="demo-select-small-label">Age</InputLabel>
-        <Select
-          labelId="demo-select-small-label"
-          id="demo-select-small"
-          value={10}
-          label="Specialities"
-          onChange={() => {
-            console.log(1233)
-          }}
-        >
-          <MenuItem value={10}>LOR</MenuItem>
-          <MenuItem value={20}>SADDS</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl
-        sx={{ m: 1, minWidth: 120 }}
-        size="small"
-      >
-        <InputLabel id="demo-select-small-label">Age</InputLabel>
-        <Select
-          labelId="demo-select-small-label"
-          id="demo-select-small"
-          value={10}
-          label="Specialities"
-          onChange={() => {
-            console.log(1233)
-          }}
-        >
-          <MenuItem value={10}>LOR</MenuItem>
-          <MenuItem value={20}>SADDS</MenuItem>
-        </Select>
-      </FormControl>
-      <input type="submit" />
-    </form>
+    <>
+      {
+        !isCitiesLoading && !isSpecialtiesLoading && !isDoctorsLoading &&
+          <form onSubmit={formik.handleSubmit}>
+              <MyInput
+                  name={'name'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  onInputChange={(value) => handleFormFieldChange('name', value)}
+              />
+              <MyDatePicker
+                  name={'date'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  onInputChange={(value) => handleFormFieldChange('date', value)}
+              />
+              <MySelect
+                  name={'sex'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  options={sexOptions}
+                  onSelectChange={(value) => handleFormFieldChange('sex', value)}
+              />
+              <MySelect
+                  name={'city'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  options={cities}
+                  onSelectChange={(value) => handleFormFieldChange('city', value)}
+              />
+              <MySelect
+                  name={'speciality'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  options={filteredSpecialities}
+                  onSelectChange={(value) => handleFormFieldChange('speciality', value)}
+              />
+              <MySelect
+                  name={'doctor'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  options={doctors}
+                  onSelectChange={(value) => handleFormFieldChange('doctor', value)}
+              />
+              <MyInput
+                  name={'email'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  onInputChange={(value) => handleFormFieldChange('email', value)}
+              />
+              <MyInput
+                  name={'phone'}
+                  values={formik.values}
+                  errors={formik.errors}
+                  onInputChange={(value) => handleFormFieldChange('phone', value)}
+              />
+              <input type="submit" />
+          </form>
+      }
+    </>
   );
 };
 

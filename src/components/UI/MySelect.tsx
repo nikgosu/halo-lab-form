@@ -12,8 +12,6 @@ interface MySelectProps {
 
 const MySelect = ({name, values, errors, options, onSelectChange}: MySelectProps) => {
 
-  console.log(errors[name])
-
   return (
     <FormControl
       sx={{ m: 1, minWidth: 200 }}
@@ -27,6 +25,7 @@ const MySelect = ({name, values, errors, options, onSelectChange}: MySelectProps
       >
         {options.map(option => (
           <MenuItem
+            defaultValue={''}
             value={option.name}
             key={option.name}
           >

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormHelperText, TextField } from '@mui/material'
+import { TextField, Typography } from '@mui/material'
 import { FormikErrors, FormikValues } from 'formik'
 
 interface MyInputProps {
@@ -19,7 +19,7 @@ const MyInput = ({ name, values, errors, onInputChange }: MyInputProps) => {
       value={values[name]}
       onChange={(event) => onInputChange(event.target.value)}
       error={Boolean(errors[name])}
-      helperText={errors[name] && <FormHelperText sx={{ color: '#d32f2f' }}>{errors[name]?.toString()}</FormHelperText>}
+      helperText={errors[name] && <Typography component={'span'} sx={{ color: '#d32f2f' }}>{errors[name]?.toString()}</Typography>}
     />
   );
 };

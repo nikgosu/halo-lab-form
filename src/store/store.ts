@@ -8,7 +8,9 @@ export const store = configureStore({
     [todoApi.reducerPath]: todoApi.reducer,
     todo: todoReducer
   },
-  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(todoApi.middleware)
+  middleware: getDefaultMiddleware => getDefaultMiddleware({
+    serializableCheck: false
+  }).concat(todoApi.middleware)
 })
 
 setupListeners(store.dispatch)
