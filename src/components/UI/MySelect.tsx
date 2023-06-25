@@ -29,7 +29,7 @@ const MySelect = ({name, values, errors, options, onSelectChange}: MySelectProps
             value={option.name}
             key={option.name}
           >
-            {option.name}
+            {option.name} {option.surname ? option.surname : ''}
           </MenuItem>
         ))}
       </Select>

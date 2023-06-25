@@ -14,8 +14,8 @@ const MyForm = () => {
   const { isLoading: isCitiesLoading, data: citiesResponse } = useFetchCitiesQuery()
   const { isLoading: isSpecialtiesLoading, data: specialtiesResponse } = useFetchSpecialitiesQuery()
   const { isLoading: isDoctorsLoading, data: doctorsResponse } = useFetchDoctorsQuery()
-  const {setCities, setSpecialities, setDoctors, setFilteredSpecialities} = useActions()
-  const {cities, doctors, filteredSpecialities} = useAppSelector(state => state.todo)
+  const {setCities, setSpecialities, setDoctors, setFilteredSpecialities, setFilteredDoctors} = useActions()
+  const {cities, filteredSpecialities, filteredDoctors} = useAppSelector(state => state.todo)
   const sexOptions = useMemo(() => SEX_OPTIONS, [])
 
   const formik = useFormik({
@@ -51,6 +51,15 @@ const MyForm = () => {
       sex: formik.values.sex
     })
   }, [formik.values.sex, formik.values.date])
+
+  useEffect(() => {
+    setFilteredDoctors({
+      birthdayDate: formik.values.date,
+      sex: formik.values.sex,
+      city: formik.values.city,
+      speciality: formik.values.speciality
+    })
+  }, [formik.values.sex, formik.values.date, formik.values.speciality, formik.values.city])
 
   return (
     <>
@@ -94,7 +103,7 @@ const MyForm = () => {
                   name={'doctor'}
                   values={formik.values}
                   errors={formik.errors}
-                  options={doctors}
+                  options={filteredDoctors}
                   onSelectChange={(value) => handleFormFieldChange('doctor', value)}
               />
               <MyInput

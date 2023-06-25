@@ -14,6 +14,13 @@ interface FilteredSpecialityPayload {
   sex: string
 }
 
+interface FilteredDoctorsPayload {
+  birthdayDate: Date
+  sex: string
+  city: string
+  speciality: string
+}
+
 const checkIsAdult = (birthdayDate: Date, maxAge: number) => {
   const today = new Date()
   let age = today.getFullYear() - birthdayDate.getFullYear()
@@ -49,6 +56,7 @@ export const TodoSlice = createSlice({
     },
     setDoctors(state, action: PayloadAction<Doctor[]>) {
       state.doctors = action.payload
+      state.filteredDoctors = action.payload
     },
     setFilteredSpecialities(state, action: PayloadAction<FilteredSpecialityPayload>) {
       const isAdult = checkIsAdult(action.payload.birthdayDate, 18)
@@ -63,8 +71,27 @@ export const TodoSlice = createSlice({
       })
       state.filteredSpecialities = filteredSpecialities
     },
-    setFilteredDoctors(state, action: PayloadAction<Doctor[]>) {
-      state.filteredDoctors = action.payload
+    setFilteredDoctors(state, action: PayloadAction<FilteredDoctorsPayload>) {
+
+      const isAdult = checkIsAdult(action.payload.birthdayDate, 18)
+
+      const currentCityId = current(state.cities).find(city => city.name === action.payload.city)?.id
+      const currentSpecialityId = current(state.specialities).find(speciality => speciality.name === action.payload.speciality)?.id
+
+      const filteredDoctors: Doctor[] = []
+      current(state.doctors).forEach(doctor => {
+        const isCityId = (currentCityId ? doctor.cityId === currentCityId : true)
+        const isSpecialityId = (currentSpecialityId ? doctor.specialityId === currentSpecialityId : true)
+
+        if (doctor.isPediatrician && !isAdult && isCityId && isSpecialityId) {
+          filteredDoctors.push(doctor)
+        }
+        if (!doctor.isPediatrician && isAdult && isCityId && isSpecialityId) {
+          filteredDoctors.push(doctor)
+        }
+      })
+
+      state.filteredDoctors = filteredDoctors
     }
   }
 })
