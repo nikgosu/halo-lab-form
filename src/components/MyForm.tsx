@@ -8,6 +8,7 @@ import MyInput from './UI/MyInput'
 import MyDatePicker from './UI/MyDatePicker'
 import { useActions } from '../hooks/actions'
 import { useAppSelector } from '../hooks/redux'
+import { Simulate } from 'react-dom/test-utils'
 
 const MyForm = () => {
 
@@ -15,7 +16,7 @@ const MyForm = () => {
   const { isLoading: isSpecialtiesLoading, data: specialtiesResponse } = useFetchSpecialitiesQuery()
   const { isLoading: isDoctorsLoading, data: doctorsResponse } = useFetchDoctorsQuery()
   const {setCities, setSpecialities, setDoctors, setFilteredSpecialities, setFilteredDoctors} = useActions()
-  const {cities, filteredSpecialities, filteredDoctors} = useAppSelector(state => state.todo)
+  const {cities, specialities, doctors, filteredSpecialities, filteredDoctors} = useAppSelector(state => state.todo)
   const sexOptions = useMemo(() => SEX_OPTIONS, [])
 
   const formik = useFormik({
@@ -37,6 +38,9 @@ const MyForm = () => {
 
   const handleFormFieldChange = useCallback((name: string, value: string) => {
     formik.setFieldValue(name, value, true)
+    name === 'date' && formik.setTouched({...formik.touched, ['date']: true })
+    formik.setErrors({ ...formik.errors, city: '', speciality: '' })
+    console.log(value)
   }, [])
 
   useEffect(() => {
@@ -61,6 +65,10 @@ const MyForm = () => {
     })
   }, [formik.values.sex, formik.values.date, formik.values.speciality, formik.values.city])
 
+  useEffect(() => {
+  }, [formik.values.doctor])
+
+
   return (
     <>
       {
@@ -83,6 +91,7 @@ const MyForm = () => {
                   values={formik.values}
                   errors={formik.errors}
                   options={sexOptions}
+                  isDisabled={false}
                   onSelectChange={(value) => handleFormFieldChange('sex', value)}
               />
               <MySelect
@@ -90,6 +99,7 @@ const MyForm = () => {
                   values={formik.values}
                   errors={formik.errors}
                   options={cities}
+                  isDisabled={false}
                   onSelectChange={(value) => handleFormFieldChange('city', value)}
               />
               <MySelect
@@ -97,6 +107,7 @@ const MyForm = () => {
                   values={formik.values}
                   errors={formik.errors}
                   options={filteredSpecialities}
+                  isDisabled={!formik.touched.date}
                   onSelectChange={(value) => handleFormFieldChange('speciality', value)}
               />
               <MySelect
@@ -104,6 +115,7 @@ const MyForm = () => {
                   values={formik.values}
                   errors={formik.errors}
                   options={filteredDoctors}
+                  isDisabled={!formik.touched.date}
                   onSelectChange={(value) => handleFormFieldChange('doctor', value)}
               />
               <MyInput

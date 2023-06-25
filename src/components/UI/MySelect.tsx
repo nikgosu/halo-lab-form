@@ -7,10 +7,11 @@ interface MySelectProps {
   values: FormikValues
   errors: FormikErrors<FormikValues>
   options: any[]
+  isDisabled: boolean
   onSelectChange: (value: string) => void
 }
 
-const MySelect = ({name, values, errors, options, onSelectChange}: MySelectProps) => {
+const MySelect = ({name, values, errors, options, isDisabled, onSelectChange}: MySelectProps) => {
 
   return (
     <FormControl
@@ -22,11 +23,12 @@ const MySelect = ({name, values, errors, options, onSelectChange}: MySelectProps
         value={values[name]}
         onChange={(event) => onSelectChange(event.target.value)}
         error={!!errors[name]}
+        disabled={isDisabled}
       >
         {options.map(option => (
           <MenuItem
             defaultValue={''}
-            value={option.name}
+            value={option ? option.name : ''}
             key={option.name}
           >
             {option.name} {option.surname ? option.surname : ''}
