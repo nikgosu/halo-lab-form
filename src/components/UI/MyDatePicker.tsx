@@ -18,6 +18,7 @@ const MyDatePicker = ({ name, values, errors, onInputChange }: MyDatePickerProps
         format="dd/MM/yyyy"
         label="Birthday date"
         value={values.date}
+        sx={{minHeight: 90}}
         onChange={(value) => onInputChange(value)}
         slotProps={{
           textField: {

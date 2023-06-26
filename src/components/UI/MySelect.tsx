@@ -15,8 +15,8 @@ const MySelect = ({name, values, errors, options, isDisabled, onSelectChange}: M
 
   return (
     <FormControl
-      sx={{ m: 1, minWidth: 200 }}
-      size="small"
+      sx={{ minWidth: 200, minHeight: 90}}
+      size="medium"
     >
       <InputLabel id="demo-select-small-label">{name.charAt(0).toUpperCase() + name.slice(1)}</InputLabel>
       <Select
