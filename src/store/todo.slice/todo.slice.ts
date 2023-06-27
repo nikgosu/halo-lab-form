@@ -50,7 +50,7 @@ export const TodoSlice = createSlice({
     setFilteredSpecialities(state, action: PayloadAction<FilteredSpecialityPayload>) {
       const isAdult = checkIsAdult(action.payload.birthdayDate, 18)
 
-      // Inside specialities response Urologist doesn't have gender key, so I decide to left him
+      // Inside specialities response Urologist doesn't have gender key, so I decided to left him
 
       state.filteredSpecialities = current(state.specialities).filter(speciality =>
         checkIsChildrenSpeciality(isAdult, speciality.params) && checkIsGenderEqual(speciality.params, action.payload.sex.name) ||
