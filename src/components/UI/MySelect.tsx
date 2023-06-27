@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
+import { FormControl, MenuItem, TextField } from '@mui/material'
 import { FormikErrors, FormikValues } from 'formik'
 
 interface MySelectProps {
@@ -11,32 +11,46 @@ interface MySelectProps {
   onSelectChange: (value: string) => void
 }
 
-const MySelect = ({name, values, errors, options, isDisabled, onSelectChange}: MySelectProps) => {
+const MySelect = ({ name, values, errors, options, isDisabled, onSelectChange }: MySelectProps) => {
 
   return (
-    <FormControl
-      sx={{ minWidth: 200, minHeight: 90}}
-      size="medium"
-    >
-      <InputLabel id="demo-select-small-label">{name.charAt(0).toUpperCase() + name.slice(1)}</InputLabel>
-      <Select
-        value={values[name]}
-        onChange={(event) => onSelectChange(event.target.value)}
-        error={!!errors[name]}
-        disabled={isDisabled}
-      >
-        {options.map(option => (
-          <MenuItem
-            defaultValue={''}
-            value={option ? option.name : ''}
-            key={option.name}
+    <>
+      {
+        options &&
+          <FormControl
+              sx={{ minWidth: 200, minHeight: 90 }}
+              size="medium"
           >
-            {option.name} {option.surname ? option.surname : ''}
-          </MenuItem>
-        ))}
-      </Select>
-      {errors[name] && <FormHelperText sx={{ color: '#d32f2f' }}>{errors[name]?.toString()}</FormHelperText>}
-    </FormControl>
+              <TextField
+                  select
+                  label={name.charAt(0).toUpperCase() + name.slice(1)}
+                  value={values[name] && values[name].name ? values[name] : ''}
+                  onChange={(event) => onSelectChange(event.target.value)}
+                  variant="outlined"
+                  defaultValue={''}
+                  error={!!Object.keys(errors[name] ?? {}).length}
+                  helperText={((errors[name] as any)?.name)}
+                  disabled={isDisabled}
+                  sx={{
+                    '.MuiSelect-select': {
+                      textAlign: 'start'
+                    }
+                  }}
+              >
+                {options.map((option, index) => (
+                    <MenuItem
+                      defaultValue={''}
+                      value={option.name ? option : ''}
+                      key={option.name + index}
+                    >
+                      {option.name} {option.surname ? option.surname : ''}
+                    </MenuItem>
+                  )
+                )}
+              </TextField>
+          </FormControl>
+      }
+    </>
   );
 };
 

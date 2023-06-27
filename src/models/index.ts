@@ -3,6 +3,10 @@ export interface City {
   name: string
 }
 
+export interface Sex {
+  name: string
+}
+
 export interface Speciality {
   id: string
   name: string
