@@ -12,7 +12,7 @@ export const initialState: TodosState = {
 
 interface FilteredSpecialityPayload {
   birthdayDate: Date
-  sex: any
+  sex: Sex
 }
 
 interface FilteredDoctorsPayload {

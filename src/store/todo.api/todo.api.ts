@@ -1,4 +1,4 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/dist/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
 import { City, Doctor, Speciality } from '../../models'
 
 export const todoApi = createApi({
@@ -27,4 +27,8 @@ export const todoApi = createApi({
   })
 })
 
-export const {useLazyFetchCitiesQuery, useFetchCitiesQuery, useLazyFetchSpecialitiesQuery, useFetchSpecialitiesQuery, useLazyFetchDoctorsQuery, useFetchDoctorsQuery} = todoApi
+export const {
+  useFetchCitiesQuery,
+  useFetchSpecialitiesQuery,
+  useFetchDoctorsQuery
+} = todoApi
