@@ -36,9 +36,9 @@ const MyForm = () => {
     }
   });
 
-  const handleFormFieldChange = useCallback((name: string, value: string) => {
-    formik.setFieldValue(name, value, true)
-    name === 'date' && formik.setTouched({ ...formik.touched, date: true })
+  const handleFormFieldChange = useCallback(async (name: string, value: string | Date) => {
+    await formik.setFieldValue(name, value, true)
+    name === 'date' && await formik.setTouched({ ...formik.touched, date: true })
   }, [])
 
   const setFieldByDoctor = () => {
