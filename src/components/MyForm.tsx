@@ -9,6 +9,7 @@ import MyDatePicker from './UI/MyDatePicker'
 import { useActions } from '../hooks/actions'
 import { useAppSelector } from '../hooks/redux'
 import { Button, CircularProgress, Container } from '@mui/material'
+import { City, Doctor, Sex, Speciality } from '../models'
 
 const MyForm = () => {
 
@@ -23,10 +24,10 @@ const MyForm = () => {
     initialValues: {
       name: '',
       date: new Date(),
-      sex: '',
-      city: '',
-      speciality: '',
-      doctor: '',
+      sex: {} as Sex,
+      city: {} as City,
+      speciality: {} as Speciality,
+      doctor: {} as Doctor,
       email: '',
       phone: ''
     },
@@ -36,24 +37,24 @@ const MyForm = () => {
     }
   });
 
-  const handleFormFieldChange = useCallback(async (name: string, value: string | Date) => {
+  const handleFormFieldChange = useCallback(async (name: string, value: City | Date | Speciality | string) => {
     await formik.setFieldValue(name, value, true)
     name === 'date' && await formik.setTouched({ ...formik.touched, date: true })
   }, [])
 
   const setFieldByDoctor = () => {
-    if (!formik.values.city && formik.values.doctor) {
-      const doctorObject = doctors.find(doctor => doctor.name === formik.values.doctor)
+    if (!Object.keys(formik.values.city).length && formik.values.doctor) {
+      const doctorObject = doctors.find(doctor => doctor.id === formik.values.doctor.id)
       const cityObject = cities.find(city => city.id === doctorObject?.cityId)
       if (cityObject) {
-        handleFormFieldChange('city', cityObject.name)
+        handleFormFieldChange('city', cityObject)
       }
     }
-    if (!formik.values.speciality && formik.values.doctor) {
-      const doctorObject = doctors.find(doctor => doctor.name === formik.values.doctor)
+    if (!Object.keys(formik.values.speciality).length && formik.values.doctor) {
+      const doctorObject = doctors.find(doctor => doctor.id === formik.values.doctor.id)
       const specialityObject = specialities.find(speciality => speciality.id === doctorObject?.specialityId)
       if (specialityObject) {
-        handleFormFieldChange('speciality', specialityObject.name)
+        handleFormFieldChange('speciality', specialityObject)
       }
     }
   }
@@ -65,25 +66,28 @@ const MyForm = () => {
   }, [citiesResponse, specialtiesResponse, doctorsResponse])
 
   useEffect(() => {
-    setFilteredSpecialities({
-      birthdayDate: formik.values.date,
-      sex: formik.values.sex
-    })
-  }, [formik.values.sex, formik.values.date])
-
-  useEffect(() => {
-    setFilteredDoctors({
+    formik.values.city && setFilteredDoctors({
       birthdayDate: formik.values.date,
       sex: formik.values.sex,
       city: formik.values.city,
       speciality: formik.values.speciality
     })
-    formik.values.city && formik.setErrors({ ...formik.errors, city: ''})
+
+    setFilteredSpecialities({
+      birthdayDate: formik.values.date,
+      sex: formik.values.sex
+    })
+
+    formik.values.city && formik.setErrors({ ...formik.errors, city: {} as City })
   }, [formik.values.sex, formik.values.date, formik.values.speciality, formik.values.city])
 
   useEffect(() => {
     setFieldByDoctor()
   }, [formik.values.doctor])
+
+  useEffect(() => {
+    formik.setTouched({ ...formik.touched, date: false })
+  }, [])
 
   return (
     <>

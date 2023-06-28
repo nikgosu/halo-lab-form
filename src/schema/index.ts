@@ -10,16 +10,19 @@ export const VALIDATION_SCHEMA = yup.object().shape({
     .max(new Date(), 'Date of birth must be in the past')
     .required('Birthday date is required'),
   sex: yup
-    .string()
-    .required('Sex is required'),
+    .object().shape({
+      name: yup.string().required('Sex is required')
+    }),
   city: yup
-    .string()
-    .required('City is required'),
+    .object().shape({
+      name: yup.string().required('City is required')
+    }),
   speciality: yup
-    .string(),
+    .object(),
   doctor: yup
-    .string()
-    .required('Doctor is required'),
+    .object().shape({
+      name: yup.string().required('Doctor is required')
+    }),
   phone: yup
     .string()
     .matches(/^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/, 'Phone number is not valid')

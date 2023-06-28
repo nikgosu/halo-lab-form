@@ -1,5 +1,6 @@
-import { City, Doctor, Speciality, SpecialityParams, TodosState } from '../../models';
+import { City, Doctor, Sex, Speciality, TodosState } from '../../models';
 import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
+import { checkIsAdultSpeciality, checkIsChildrenSpeciality, checkIsGenderEqual } from '../../helpers'
 
 export const initialState: TodosState = {
   cities: [],
@@ -11,14 +12,14 @@ export const initialState: TodosState = {
 
 interface FilteredSpecialityPayload {
   birthdayDate: Date
-  sex: string
+  sex: Sex
 }
 
 interface FilteredDoctorsPayload {
   birthdayDate: Date
-  sex: string
-  city: string
-  speciality: string
+  sex: Sex
+  city: City
+  speciality: Speciality
 }
 
 const checkIsAdult = (birthdayDate: Date, maxAge: number) => {
@@ -29,18 +30,6 @@ const checkIsAdult = (birthdayDate: Date, maxAge: number) => {
     age--
   }
   return age >= maxAge
-}
-
-const checkIsAdultSpeciality = (isAdult: boolean, params: SpecialityParams | undefined) => {
-  return (params?.minAge ?? 19) > 18 && (params?.maxAge ?? 19) >= 18 && isAdult
-}
-
-const checkIsChildrenSpeciality = (isAdult: boolean, params: SpecialityParams | undefined) => {
-  return (params?.minAge ?? 0) <= 18 && (params?.maxAge ?? 0) <= 18 && !isAdult
-}
-
-const checkIsGenderEqual = (params: SpecialityParams | undefined, sex: string) => {
-  return (params?.gender === sex || !params?.gender || !sex)
 }
 
 export const TodoSlice = createSlice({
@@ -60,38 +49,27 @@ export const TodoSlice = createSlice({
     },
     setFilteredSpecialities(state, action: PayloadAction<FilteredSpecialityPayload>) {
       const isAdult = checkIsAdult(action.payload.birthdayDate, 18)
-      const filteredSpecialities: Speciality[] = []
-      current(state.specialities).forEach(speciality => {
-        if (checkIsChildrenSpeciality(isAdult, speciality.params) && checkIsGenderEqual(speciality.params, action.payload.sex)) {
-          filteredSpecialities.push(speciality)
-        }
-        if (checkIsAdultSpeciality(isAdult, speciality.params) && checkIsGenderEqual(speciality.params, action.payload.sex)) {
-          filteredSpecialities.push(speciality)
-        }
-      })
-      state.filteredSpecialities = filteredSpecialities
+
+      // Inside specialities response Urologist doesn't have gender key, so I decided to left him
+
+      state.filteredSpecialities = current(state.specialities).filter(speciality =>
+        checkIsChildrenSpeciality(isAdult, speciality.params) && checkIsGenderEqual(speciality.params, action.payload.sex.name) ||
+        checkIsAdultSpeciality(isAdult, speciality.params) && checkIsGenderEqual(speciality.params, action.payload.sex.name)
+      )
     },
     setFilteredDoctors(state, action: PayloadAction<FilteredDoctorsPayload>) {
 
       const isAdult = checkIsAdult(action.payload.birthdayDate, 18)
 
-      const currentCityId = current(state.cities).find(city => city.name === action.payload.city)?.id
-      const currentSpecialityId = current(state.specialities).find(speciality => speciality.name === action.payload.speciality)?.id
+      const currentCity = current(state.cities).find(city => city.id === action.payload.city.id)
+      const currentSpeciality = current(state.specialities).find(speciality => speciality.id === action.payload.speciality.id)
 
-      const filteredDoctors: Doctor[] = []
-      current(state.doctors).forEach(doctor => {
-        const isCityId = (currentCityId ? doctor.cityId === currentCityId : true)
-        const isSpecialityId = (currentSpecialityId ? doctor.specialityId === currentSpecialityId : true)
+      state.filteredDoctors = current(state.doctors).filter(doctor => {
+        const isCityId = (currentCity?.id ? doctor.cityId === currentCity?.id : true)
+        const isSpecialityId = (currentSpeciality ? doctor.specialityId === currentSpeciality.id : true)
 
-        if (doctor.isPediatrician && !isAdult && isCityId && isSpecialityId) {
-          filteredDoctors.push(doctor)
-        }
-        if (!doctor.isPediatrician && isAdult && isCityId && isSpecialityId) {
-          filteredDoctors.push(doctor)
-        }
+        return doctor.isPediatrician && !isAdult && isCityId && isSpecialityId || !doctor.isPediatrician && isAdult && isCityId && isSpecialityId
       })
-
-      state.filteredDoctors = filteredDoctors
     }
   }
 })
