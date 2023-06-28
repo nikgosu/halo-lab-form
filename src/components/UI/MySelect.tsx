@@ -12,6 +12,7 @@ interface MySelectProps {
 }
 
 const MySelect = ({ name, values, errors, options, isDisabled, onSelectChange }: MySelectProps) => {
+
   return (
     <>
       {
@@ -28,7 +29,7 @@ const MySelect = ({ name, values, errors, options, isDisabled, onSelectChange }:
               variant="outlined"
               defaultValue={''}
               error={!!Object.keys(errors[name] ?? {}).length}
-              helperText={isDisabled ? 'You have to pick birthday date' : !!Object.keys(errors[name] ?? {}).length ? ((errors[name] as any)?.name) : ''}
+              helperText={isDisabled ? 'You have to pick a birthday date' : !!Object.keys(errors[name] ?? {}).length ? ((errors[name] as any)?.name) : ''}
               disabled={isDisabled}
               sx={{
                 '.MuiSelect-select': {
