@@ -101,7 +101,7 @@ const MyForm = () => {
                 justifyContent: 'space-between',
                 mt: 4,
                 mb: 4,
-                width: { xs: 400, md: 600, lg: 800, xl: 800 },
+                width: { xs: 300, md: 600, lg: 800, xl: 800 },
                 minHeight: 'calc(100dvh - 150px)'
               }}
             >
